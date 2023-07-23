@@ -83,17 +83,46 @@
     - name: Get join command
       shell:
           kubeadm token create --print-join-command > /home/vagrant/join-command
+      tags:
+         - join
+    - name: copy file from k8s-masternode1 to local
+      fetch: 
+        src: /home/vagrant/join-command
+        dest: join-command/
+        flat: yes
+      tags:
+         - join
 
-# - hosts: k8s-masternode1
-#   become: yes
-#   tasks:
-#     - name: Install the Tigera Calico operator and custom resource definitions
-#       shell:
-#         kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
-# 
-# - hosts: k8s-masternode1
-#   become: yes
-#   tasks:
-#     - name: Install Calico by creating the necessary custom resource
-#       shell:
-#         kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+- hosts: k8s-workernode1:k8s-workernode2
+  tasks:    
+   - name: Copy from k8s-masternode1 to k8s-workernode
+     copy:
+       src: join-command/join-command
+       dest: /home/vagrant/join-command
+     tags:
+       - join
+
+- hosts: k8s-workernode1:k8s-workernode2
+  become: yes
+  tasks:
+    - name: Join
+      shell:
+        cmd: |
+          chmod u+x /home/vagrant/join-command
+          /home/vagrant/join-command
+      tags:
+         - join
+
+- hosts: k8s-masternode1
+  become: yes
+  tasks:
+    - name: Install the Tigera Calico operator and custom resource definitions
+      shell:
+        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+
+- hosts: k8s-masternode1
+  become: yes
+  tasks:
+    - name: Install Calico by creating the necessary custom resource
+      shell:
+        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
