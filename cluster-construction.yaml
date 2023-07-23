@@ -1,6 +1,23 @@
 - hosts: all
   become: yes
   tasks:
+    - name: Disable swap 
+      shell:
+        cmd: |
+          sed -e '/swap/ s/^#*/#/' -i /etc/fstab
+          systemctl mask swap.target
+
+- hosts: all
+  tasks:
+  - name: Reboot
+    ansible.builtin.reboot: reboot_timeout=600
+    become: true
+  - name: Ping Connection
+    ansible.builtin.ping:
+
+- hosts: all
+  become: yes
+  tasks:
     - name: container
       shell:
         cmd: |
@@ -24,9 +41,6 @@
           mkdir -p /etc/containerd
           containerd config default | tee /etc/containerd/config.toml
           systemctl restart containerd
-    - name: swap off
-      shell:
-        swapoff -a
     - name: apt update
       apt:
         update_cache: yes
@@ -69,13 +83,13 @@
   tasks:
     - name: コントロールプレーンノードの初期化
       shell:
-        kubeadm init --apiserver-advertise-address=192.168.11.71
+        kubeadm init --apiserver-advertise-address=192.168.11.71 --pod-network-cidr=192.168.0.0/16
     - name:
       shell:
         cmd: |
-          mkdir -p $HOME/.kube
-          cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
-          chown vagrant:vagrant $HOME/.kube/config
+          mkdir -p /home/vagrant/.kube
+          cp -f /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+          chown vagrant:vagrant /home/vagrant/.kube/config
 
 - hosts: k8s-masternode1
   become: yes
@@ -85,7 +99,7 @@
           kubeadm token create --print-join-command > /home/vagrant/join-command
       tags:
          - join
-    - name: copy file from k8s-masternode1 to local
+    - name: Copy join command from k8s-masternode1 to local
       fetch: 
         src: /home/vagrant/join-command
         dest: join-command/
@@ -95,7 +109,7 @@
 
 - hosts: k8s-workernode1:k8s-workernode2
   tasks:    
-   - name: Copy from k8s-masternode1 to k8s-workernode
+   - name: Copy join command to k8s-workernodes
      copy:
        src: join-command/join-command
        dest: /home/vagrant/join-command
@@ -105,7 +119,7 @@
 - hosts: k8s-workernode1:k8s-workernode2
   become: yes
   tasks:
-    - name: Join
+    - name: Run join command on workernodes
       shell:
         cmd: |
           chmod u+x /home/vagrant/join-command
@@ -114,15 +128,17 @@
          - join
 
 - hosts: k8s-masternode1
-  become: yes
   tasks:
     - name: Install the Tigera Calico operator and custom resource definitions
       shell:
         kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+      tags:
+         - CNI
 
 - hosts: k8s-masternode1
-  become: yes
   tasks:
     - name: Install Calico by creating the necessary custom resource
       shell:
         kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+      tags:
+         - CNI

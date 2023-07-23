@@ -1,6 +1,11 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-22.04"
 
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 2
+    vb.memory = 2048
+  end
+
   config.vm.define "k8s-masternode1" do |server|
     server.vm.hostname = "k8s-masternode1"
     server.vm.network "public_network", ip: "192.168.11.71", bridge: "enp4s0"
