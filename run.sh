@@ -1,6 +1,5 @@
 #!/bin/bash -eux
 
-# TODO: Branch
 if [ $(vagrant snapshot list --machine-readable | grep savepoint | wc -l) != "3" ]
 then
     vagrant destroy -f
