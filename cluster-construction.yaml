@@ -40,6 +40,8 @@
           apt-get install -y containerd
           mkdir -p /etc/containerd
           containerd config default | tee /etc/containerd/config.toml
+          # https://rabbit-note.com/2022/08/09/build-kubernetes-home-cluster/
+          sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
           systemctl restart containerd
     - name: apt update
       apt:
@@ -83,7 +85,7 @@
   tasks:
     - name: コントロールプレーンノードの初期化
       shell:
-        kubeadm init --apiserver-advertise-address=192.168.11.71 --pod-network-cidr=192.168.0.0/16
+        kubeadm init --apiserver-advertise-address=192.168.11.71 --pod-network-cidr=172.16.0.0/20
     - name:
       shell:
         cmd: |
@@ -139,6 +141,9 @@
   tasks:
     - name: Install Calico by creating the necessary custom resource
       shell:
-        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+        cmd: |
+          curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml > custom-resources.yaml
+          sed s:192.168.0.0/16:172.16.0.0/20:g -i custom-resources.yaml
+          kubectl create -f custom-resources.yaml
       tags:
          - CNI
