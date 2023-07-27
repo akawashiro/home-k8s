@@ -16,3 +16,4 @@ fi
 rm -rf join-command
 mkdir join-command
 ansible-playbook cluster-construction.yaml -i hosts -v
+scp vagrant@192.168.11.71:~/.kube/config ~/.kube/config

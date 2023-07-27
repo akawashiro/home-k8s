@@ -30,28 +30,7 @@
           - curl
     - name: Set up containerd
       ansible.builtin.shell:
-        cmd: |
-          cat <<EOF | tee /etc/modules-load.d/k8s.conf
-          overlay
-          br_netfilter
-          EOF
-          modprobe overlay
-          modprobe br_netfilter
-          # Copied from 
-          # https://kubernetes.io/ja/docs/setup/production-environment/container-runtimes/#ipv4%E3%83%95%E3%82%A9%E3%83%AF%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%92%E6%9C%89%E5%8A%B9%E5%8C%96%E3%81%97-iptables%E3%81%8B%E3%82%89%E3%83%96%E3%83%AA%E3%83%83%E3%82%B8%E3%81%95%E3%82%8C%E3%81%9F%E3%83%88%E3%83%A9%E3%83%95%E3%82%A3%E3%83%83%E3%82%AF%E3%82%92%E8%A6%8B%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B
-          # Kernel parameters
-          cat <<EOF | tee /etc/sysctl.d/k8s.conf
-          net.bridge.bridge-nf-call-iptables  = 1
-          net.bridge.bridge-nf-call-ip6tables = 1
-          net.ipv4.ip_forward                 = 1
-          EOF
-          # Apply kernel parameters without reboot
-          sysctl --system
-          mkdir -p /etc/containerd
-          containerd config default | tee /etc/containerd/config.toml
-          # https://rabbit-note.com/2022/08/09/build-kubernetes-home-cluster/
-          sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
-          systemctl restart containerd
+        cmd: "cat <<EOF | tee /etc/modules-load.d/k8s.conf\noverlay\nbr_netfilter\nEOF\nmodprobe overlay\nmodprobe br_netfilter\n# Copied from \n# https://kubernetes.io/ja/docs/setup/production-environment/container-runtimes/#ipv4%E3%83%95%E3%82%A9%E3%83%AF%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%92%E6%9C%89%E5%8A%B9%E5%8C%96%E3%81%97-iptables%E3%81%8B%E3%82%89%E3%83%96%E3%83%AA%E3%83%83%E3%82%B8%E3%81%95%E3%82%8C%E3%81%9F%E3%83%88%E3%83%A9%E3%83%95%E3%82%A3%E3%83%83%E3%82%AF%E3%82%92%E8%A6%8B%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B\n# Kernel parameters\ncat <<EOF | tee /etc/sysctl.d/k8s.conf\nnet.bridge.bridge-nf-call-iptables  = 1\nnet.bridge.bridge-nf-call-ip6tables = 1\nnet.ipv4.ip_forward                 = 1\nEOF\n# Apply kernel parameters without reboot\nsysctl --system\nmkdir -p /etc/containerd\ncontainerd config default | tee /etc/containerd/config.toml\n# https://rabbit-note.com/2022/08/09/build-kubernetes-home-cluster/\nsed -i 's/SystemdCgroup \\= false/SystemdCgroup \\= true/g' /etc/containerd/config.toml\nsystemctl restart containerd\n"
     - name: Download Google Cloud public key
       ansible.builtin.shell: rm -f /etc/apt/keyrings/kubernetes-archive-keyring.gpg && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
     - name: Add kubernetes apt repository
@@ -136,3 +115,14 @@
           kubectl create -f custom-resources.yaml
       tags:
         - CNI
+- hosts: all
+  name: Install calicoctl
+  become: true
+  tasks:
+    - name: Install calicoctl
+      ansible.builtin.get_url:
+        url: https://github.com/projectcalico/calicoctl/releases/download/v3.17.1/calicoctl
+        dest: /usr/bin/calicoctl
+        mode: '0755'
+      tags:
+        - calicoctl
