@@ -126,3 +126,47 @@
         mode: '0755'
       tags:
         - calicoctl
+- hosts: k8s-masternode1
+  become: true
+  name: Rewrite INTERNAL-IP
+  tasks:
+    - name: Rewrite INTERNAL-IP
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        insertafter: 'Environment'
+        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.71"
+      tags:
+        - INTERNAL-IP
+- hosts: k8s-workernode1
+  become: true
+  name: Rewrite INTERNAL-IP
+  tasks:
+    - name: Rewrite INTERNAL-IP
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        insertafter: 'Environment'
+        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.72"
+      tags:
+        - INTERNAL-IP
+- hosts: k8s-workernode2
+  become: true
+  name: Rewrite INTERNAL-IP
+  tasks:
+    - name: Rewrite INTERNAL-IP
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        insertafter: 'Environment'
+        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.73"
+      tags:
+        - INTERNAL-IP
+- hosts: all
+  become: true
+  name: Restart kubelet to change INTERNAL-IP
+  tasks:
+    - name: Restart kubelet to change INTERNAL-IP
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: true
+        name: kubelet
+  tags:
+    - INTERNAL-IP
