@@ -4,6 +4,12 @@ Construct kubernetes cluster just one command. Just running `run.sh`
 - Creates 3 VM using Vagrant.
 - Install kubenetes all of them.
 
+## Check dmesg from pod
+Run this on nodes.
+```bash
+sudo sysctl -w kernel.dmesg_restrict=0
+```
+
 ## TODO
 - Network Interface Name
 
