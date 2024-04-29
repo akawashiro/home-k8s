@@ -34,13 +34,13 @@
     - name: Download Google Cloud public key
       ansible.builtin.shell: rm -f /etc/apt/keyrings/kubernetes-archive-keyring.gpg && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
     - name: Add kubernetes apt repository
-      ansible.builtin.shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      ansible.builtin.shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
     - name: Download the public signing key for the Kubernetes package repositories
-      ansible.builtin.shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      ansible.builtin.shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     - name: Update apt
       ansible.builtin.apt:
         update_cache: true
-    - name: Install kubelet kubeadm kubectl
+    - name: Install kubelet, kubeadm and kubectl
       ansible.builtin.apt:
         name:
           - kubelet
@@ -134,7 +134,7 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
         insertafter: 'Environment'
         line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.71"
       tags:
@@ -145,7 +145,7 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
         insertafter: 'Environment'
         line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.72"
       tags:
@@ -156,7 +156,7 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
         insertafter: 'Environment'
         line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.73"
       tags:
