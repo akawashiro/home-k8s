@@ -172,3 +172,25 @@
         name: kubelet
   tags:
     - INTERNAL-IP
+- hosts: all
+  become: true
+  name: Change log level
+  tasks:
+    - name: Change log level
+      ansible.builtin.lineinfile:
+        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+        insertafter: 'Environment'
+        line: Environment="KUBELET_LOG_LEVEL=8"
+      tags:
+        - CHANGE-LOG-LEVEL
+- hosts: all
+  become: true
+  name: Restart kubelet to change log level
+  tasks:
+    - name: Restart kubelet to change log level
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: true
+        name: kubelet
+  tags:
+    - CHANGE-LOG-LEVEL
