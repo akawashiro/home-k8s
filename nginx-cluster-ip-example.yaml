@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-cluster-ip-example
+spec:
+  selector:
+    matchLabels:
+      run: nginx-cluster-ip-example
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: nginx-cluster-ip-example
+    spec:
+      containers:
+      - name: nginx-cluster-ip-example
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-cluster-ip-example
+  labels:
+    run: nginx-cluster-ip-example
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: nginx-cluster-ip-example
