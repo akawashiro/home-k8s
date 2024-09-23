@@ -15,5 +15,11 @@ fi
 
 rm -rf join-command
 mkdir join-command
+
+IPS=(192.168.11.71 192.168.11.72 192.168.11.73)
+for IP in ${IPS[@]}; do
+    ping -c 5 $IP
+done
+
 ansible-playbook cluster-construction.yaml -i hosts -v
 sshpass -p "vagrant" scp vagrant@192.168.11.71:~/.kube/config ~/.kube/config

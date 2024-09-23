@@ -1,8 +1,13 @@
 - hosts: all
+  name: Check all hosts are reachable
+  tasks:
+    - name: Ping Connection
+      ansible.builtin.ping:
+- hosts: all
   become: true
   name: Disable swap
   tasks:
-    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled
       ansible.builtin.replace:
         path: /etc/fstab
         regexp: '^([^#].*?\sswap\s+sw\s+.*)$'

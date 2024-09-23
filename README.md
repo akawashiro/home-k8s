@@ -6,15 +6,21 @@ Construct kubernetes cluster just one command. Just running `run.sh`
 
 ## Check dmesg from pod
 Run this on nodes.
-```bash
-sudo sysctl -w kernel.dmesg_restrict=0
+```console
+$ sudo sysctl -w kernel.dmesg_restrict=0
+```
+
+## Launch bash pod
+```console
+$ kubectl apply -f ./shell-demo.yaml
+$ kubectl exec pod/shell-demo -it -- /bin/bash
 ```
 
 ## TODO
 - Network Interface Name
 
 ## MEMO
-```
+``console
 vagrant@k8s-workernode1:~$ sudo birdc -s /run/calico/bird.ctl                                                                                                                                                                                                                 BIRD v0.3.3+birdv1.6.8 ready.
 bird> show route
 0.0.0.0/0          via 10.0.2.2 on eth0 [kernel1 11:49:13] * (10)
