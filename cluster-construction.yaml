@@ -139,9 +139,9 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
-        insertafter: 'Environment'
-        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.71"
+        path: /etc/default/kubelet
+        regexp: '^KUBELET_EXTRA_ARGS=$'
+        line: KUBELET_EXTRA_ARGS=--node-ip=192.168.11.71
       tags:
         - INTERNAL-IP
 - hosts: k8s-workernode1
@@ -150,9 +150,9 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
-        insertafter: 'Environment'
-        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.72"
+        path: /etc/default/kubelet
+        regexp: '^KUBELET_EXTRA_ARGS=$'
+        line: KUBELET_EXTRA_ARGS=--node-ip=192.168.11.72
       tags:
         - INTERNAL-IP
 - hosts: k8s-workernode2
@@ -161,9 +161,9 @@
   tasks:
     - name: Rewrite INTERNAL-IP
       ansible.builtin.lineinfile:
-        path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
-        insertafter: 'Environment'
-        line: Environment="KUBELET_EXTRA_ARGS=--node-ip=192.168.11.73"
+        path: /etc/default/kubelet
+        regexp: '^KUBELET_EXTRA_ARGS=$'
+        line: KUBELET_EXTRA_ARGS=--node-ip=192.168.11.73
       tags:
         - INTERNAL-IP
 - hosts: all

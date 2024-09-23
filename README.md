@@ -16,6 +16,18 @@ $ kubectl apply -f ./shell-demo.yaml
 $ kubectl exec pod/shell-demo -it -- /bin/bash
 ```
 
+## Use eBPF in pod
+```console
+$ kubectl apply -f ./ebpf-demo.yaml
+$ kubectl exec pod/ebpf-demo -it -- /bin/bash
+```
+
+In the pod, run this command.
+```console
+$ apt update
+$ TODO...
+```
+
 ## TODO
 - Network Interface Name
 
